@@ -1,0 +1,1 @@
+export { default as SalesPage } from './ui/SalesPage.vue'

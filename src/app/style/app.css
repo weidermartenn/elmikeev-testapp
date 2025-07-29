@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+    themes: light --default, dark --prefersdark, emerald;
+}
+
+@theme {
+    --font-display: "Rubik";
+}
+
+@layer components {
+    .button {
+        @apply bg-zinc-800 text-white py-2 px-4 rounded cursor-pointer;
+        @apply duration-150 ease-in-out;
+
+        &:hover {
+            @apply bg-zinc-600;
+        }
+    }
+}

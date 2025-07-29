@@ -1,0 +1,1 @@
+export { default as StocksPage } from './ui/StocksPage.vue'
