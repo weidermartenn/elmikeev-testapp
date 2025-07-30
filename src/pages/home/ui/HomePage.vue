@@ -14,12 +14,20 @@
         />
       </div>
       
-      <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 text-center mb-2">
+      <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-center text-black mb-2">
         Ельмикеев Аналитика
       </h1>
       <span class="text-sm sm:text-base text-gray-600">
         Тестовое задание by f14
       </span>
+
+      <div class="divider"></div>
+
+      <div class="text-sm sm:text-base text-gray-600">
+        <span>Стек: Vue 3, Pinia, Vite, TailwindCSS</span>
+        <br>
+        <span>Библиотеки: DaisyUI, ECharts</span>
+      </div>
     </div>
   </div>
 </template>

@@ -64,7 +64,7 @@
       
       <table v-else class="table table-xs sm:table-sm md:table-md">
         <thead>
-          <tr class="text-center">
+          <tr class="text-left">
             <th v-for="header in tableHeaders" :key="header.id">
               {{ header.title }}
             </th>
@@ -111,12 +111,12 @@
       </button>
     </div>
 
-    <div class="mt-4 overflow-x-auto overflow-y-scroll p-4 rounded-sm border border-base-content/5 bg-base-100 w-full max-w-6xl">
+    <div class="mt-4 mb-10 overflow-x-auto overflow-y-scroll p-4 rounded-sm border border-base-content/5 bg-base-100 w-full max-w-6xl">
       <h1 class="text-xl text-left mb-2">
         График
       </h1>
 
-      <IncomesChart :incomes-data="filteredItems"/>
+      <IncomesChart :incomes-data="filteredItems" defer/>
     </div>
   </div>
 </template>

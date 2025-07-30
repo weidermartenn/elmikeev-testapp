@@ -1,4 +1,4 @@
-export interface IncomeItem {
+export interface OrderItem {
   income_id: number;
   date: string;
   last_change_date: string;
@@ -16,6 +16,6 @@ export interface MetaData {
 }
 
 export interface ApiResponse {
-  data: IncomeItem[];
+  data: OrderItem[];
   meta: MetaData;
 }
