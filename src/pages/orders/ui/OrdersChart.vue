@@ -12,7 +12,7 @@ const props = defineProps({
       date: string;
       total_price: string;
       discount_percent: string;
-      income_id: number;
+      nm_id: number;
     }>,
     required: true
   }
@@ -55,7 +55,7 @@ const initChart = () => {
           Дата: ${params[0].axisValue}<br/>
           Сумма: ${amount.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}<br/>
           Скидка: ${discount}%<br/>
-          ID: ${props.ordersData[params[0].dataIndex]?.income_id || 'N/A'}
+          ID: ${props.ordersData[params[0].dataIndex]?.nm_id || 'N/A'}
         `;
       }
     },

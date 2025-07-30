@@ -93,7 +93,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in filteredItems" :key="`${item.income_id}-${index}`">
+          <tr v-for="(item, index) in filteredItems" :key="item.income_id - index">
             <td>{{ index + 1 }}</td>
             <td>{{ item.income_id }}</td>
             <td>
