@@ -1,10 +1,12 @@
-export interface OrderItem {
+export interface StockItem {
   nm_id: number;
   date: string;
   last_change_date: string;
   supplier_article: string;
-  total_price: string;
-  discount_percent: string;
+  price: string;
+  discount: string;
+  is_supply: boolean;
+  is_realization: boolean;
   warehouse_name: string;
 }
 
@@ -16,6 +18,6 @@ export interface MetaData {
 }
 
 export interface ApiResponse {
-  data: OrderItem[];
+  data: StockItem[];
   meta: MetaData;
 }

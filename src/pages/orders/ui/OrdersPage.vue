@@ -1,6 +1,6 @@
 <template>
-  <div class="h-full flex flex-col justify-start items-center">
-    <form @submit.prevent="handleSubmit" class="grid grid-cols-2 md:grid-cols-4 gap-4 my-4 w-full max-w-4xl">
+  <div class="h-full flex flex-col justify-start items-center p-4">
+    <form @submit.prevent="handleSubmit" class="grid grid-cols-2 md:grid-cols-5 gap-4 my-4 w-full max-w-4xl">
       <div class="flex flex-col">
         <label for="dateFrom" class="mb-1 text-sm font-medium">От</label>
         <input
@@ -49,13 +49,46 @@
         />
         <span v-if="errors.page" class="text-red-500 text-xs mt-1">{{ errors.page }}</span>
       </div>
+
+      <div class="flex flex-col">
+        <label for="warehouse" class="mb-1 text-sm font-medium">Склад</label>
+        <div class="relative">
+          <select 
+            id="warehouse"
+            class="w-full p-2 border-1 border-gray-300 rounded-md pr-8"
+            v-model="form.warehouse"
+            @change="handleWarehouseChange"
+          >
+            <option value="">Все склады</option>
+            <option 
+              v-for="warehouse in uniqueWarehouses"
+              :key="warehouse"
+              :value="warehouse"
+            >
+              {{ warehouse }}
+            </option>
+          </select>
+          <button 
+            v-if="form.warehouse"
+            @click="resetWarehouse"
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            type="button"
+          >
+            ×
+          </button>
+        </div>
+      </div>
     </form>
 
     <div class="p-4">
       <h1 v-if="ordersStore.allOrders.meta" class="text-xl text-left mb-2">
         Страница: {{ ordersStore.allOrders.meta.current_page }} из {{ ordersStore.allOrders.meta.last_page }}
       </h1>
+      <span v-if="ordersStore.allOrders.meta" class="text-sm text-gray-400">Общее количество записей: {{ ordersStore.allOrders.meta.total }}</span>
+      <br>
+      <span class="text-sm text-gray-400">Записей на странице: {{ filteredItems.length }}</span>
     </div>
+
     <div class="max-h-[60vh] overflow-x-auto overflow-y-scroll p-4 rounded-sm border border-base-content/5 bg-base-100 w-full max-w-6xl">
       <div v-if="loading" class="flex justify-center my-8">
         <span class="loading loading-spinner loading-lg"></span>
@@ -70,9 +103,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in filteredItems" :key="item.income_id">
+          <tr v-for="(item, index) in filteredItems" :key="`${item.nm_id}-${index}`">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.income_id }}</td>
+            <td>{{ item.nm_id }}</td>
             <td>
               {{ formatDate(item.date) }} <br />
               <span class="text-xs text-gray-400">
@@ -124,6 +157,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useOrdersStore } from "../model/store";
 import { debounce } from "@/features/debounce";
+// @ts-ignore
 import OrdersChart from "./OrdersChart.vue";
 
 const tableHeaders = [
@@ -144,6 +178,7 @@ const form = ref({
   dateTo: "2025-02-02",
   search: "",
   page: 1,
+  warehouse: "",
 });
 
 const errors = ref({
@@ -179,13 +214,28 @@ const debouncedSearch = debounce(() => {
   fetchData();
 }, 500);
 
+const uniqueWarehouses = computed(() => {
+  if (!ordersStore.allOrders.data) return [];
+  const warehouses = new Set(ordersStore.allOrders.data.map(item => item.warehouse_name));
+  return Array.from(warehouses).sort();
+});
+
 const filteredItems = computed(() => {
-  if (!form.value.search) return ordersStore.allOrders.data || [];
+  let items = ordersStore.allOrders.data || [];
   
-  const searchTerm = form.value.search.toLowerCase();
-  return (ordersStore.allOrders.data || []).filter(item => 
-    item.supplier_article.toLowerCase().includes(searchTerm) ||
-    item.income_id.toString().includes(searchTerm))
+  if (form.value.search) {
+    const searchTerm = form.value.search.toLowerCase();
+    items = items.filter(item => 
+      item.supplier_article.toLowerCase().includes(searchTerm) ||
+      item.nm_id.toString().includes(searchTerm)
+    );
+  }
+  
+  if (form.value.warehouse) {
+    items = items.filter(item => item.warehouse_name === form.value.warehouse);
+  }
+  
+  return items;
 });
 
 const fetchData = async () => {
@@ -206,6 +256,17 @@ const fetchData = async () => {
 };
 
 const handleSubmit = () => {
+  fetchData();
+};
+
+const handleWarehouseChange = () => {
+  form.value.page = 1;
+  fetchData();
+};
+
+const resetWarehouse = () => {
+  form.value.warehouse = "";
+  form.value.page = 1;
   fetchData();
 };
 
@@ -260,3 +321,7 @@ onMounted(async () => {
   await fetchData();
 });
 </script>
+
+<style scoped>
+/* Добавьте свои стили при необходимости */
+</style>

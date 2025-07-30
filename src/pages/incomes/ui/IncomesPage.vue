@@ -1,6 +1,6 @@
 <template>
-  <div class="h-full flex flex-col justify-start items-center">
-    <form @submit.prevent="handleSubmit" class="grid grid-cols-2 md:grid-cols-4 gap-4 my-4 w-full max-w-4xl">
+  <div class="h-full flex flex-col justify-start items-center p-4">
+    <form @submit.prevent="handleSubmit" class="grid grid-cols-2 md:grid-cols-5 gap-4 my-4 w-full max-w-4xl">
       <div class="flex flex-col">
         <label for="dateFrom" class="mb-1 text-sm font-medium">От</label>
         <input
@@ -50,12 +50,34 @@
         />
         <span v-if="errors.page" class="text-red-500 text-xs mt-1">{{ errors.page }}</span>
       </div>
+
+      <div class="flex flex-col">
+        <label for="warehouse" class="mb-1 text-sm font-medium">Склад</label>
+        <select 
+          id="warehouse"
+          class="p-2 border-1 border-gray-300 rounded-md"
+          v-model="form.warehouse"
+          @change="fetchData"
+        >
+          <option value="">Все склады</option>
+          <option 
+            v-for="warehouse in uniqueWarehouses"
+            :key="warehouse"
+            :value="warehouse"
+          >
+            {{ warehouse }}
+          </option>
+        </select>
+      </div>
     </form>
 
     <div class="p-4">
       <h1 v-if="incomesStore.allIncomes.meta" class="text-xl text-left mb-2">
           Страница: {{ incomesStore.allIncomes.meta.current_page }} из {{ incomesStore.allIncomes.meta.last_page }}
       </h1>
+      <span v-if="incomesStore.allIncomes.meta" class="text-sm text-gray-400">Общее количество записей: {{ incomesStore.allIncomes.meta.total }}</span>
+      <br>
+      <span class="text-sm text-gray-400">Записей на странице: {{ filteredItems.length }}</span>
     </div>
     <div class="max-h-[60vh] overflow-x-auto overflow-y-scroll p-4 rounded-sm border border-base-content/5 bg-base-100 w-full max-w-6xl">
       <div v-if="loading" class="flex justify-center my-8">
@@ -71,7 +93,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in filteredItems" :key="item.income_id">
+          <tr v-for="(item, index) in filteredItems" :key="`${item.income_id}-${index}`">
             <td>{{ index + 1 }}</td>
             <td>{{ item.income_id }}</td>
             <td>
@@ -144,6 +166,7 @@ const form = ref({
   dateTo: "2025-02-02",
   search: "",
   page: 1,
+  warehouse: "",
 });
 
 const errors = ref({
@@ -179,15 +202,29 @@ const debouncedSearch = debounce(() => {
   fetchData();
 }, 500);
 
+const uniqueWarehouses = computed(() => {
+  if (!incomesStore.allIncomes.data) return [];
+  const warehouses = new Set(incomesStore.allIncomes.data.map(item => item.warehouse_name));
+  return Array.from(warehouses).sort();
+})
+
 const filteredItems = computed(() => {
-  if (!form.value.search) return incomesStore.allIncomes.data || [];
+  let items = incomesStore.allIncomes.data || [];
   
+  if (form.value.search) {
     const searchTerm = form.value.search.toLowerCase();
-    return (incomesStore.allIncomes.data || []).filter(item => 
-      item.supplier_article.includes(searchTerm) ||
-      item.income_id.toString().includes(searchTerm))
+    items = items.filter(item => 
+      item.supplier_article.toLowerCase().includes(searchTerm) ||
+      item.income_id.toString().includes(searchTerm)
+    );
   }
-);
+  
+  if (form.value.warehouse) {
+    items = items.filter(item => item.warehouse_name === form.value.warehouse);
+  }
+  
+  return items;
+});
 
 const fetchData = async () => {
   if (!validateForm()) return;
